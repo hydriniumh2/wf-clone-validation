@@ -96,8 +96,8 @@ process assembleCore {
     script:
         name = fastq.simpleName
         cluster_dir = "trycycler/cluster_001"
-        int target = params.assm_coverage * 3
-        int min_dep = (params.assm_coverage / 3) * 2
+        int target = params.assm_coverage * 12
+        int min_dep = (params.assm_coverage / 12) * 2
         int min_len = 1000
         int max_len = approx_size.toInteger() * 1.2
         int min_q = 7
@@ -138,7 +138,7 @@ process assembleCore {
     ############################################################
     
     (trycycler subsample \
-        --count 3 \
+        --count 12 \
         --min_read_depth $min_dep \
         --reads ${name}.downsampled.fastq \
         --out_dir sets \
@@ -221,7 +221,8 @@ process assembleCore {
 
 
 process medakaPolishAssembly {
-    label "wfplasmid"
+    conda '/home/ubuntu/ont-cas9-enrichment/miniconda/envs/medaka'
+    label "wfplasmid2"
     cpus params.threads
     input:
         tuple val(sample), file(draft), file(fastq)
@@ -230,7 +231,7 @@ process medakaPolishAssembly {
         env STATUS, emit: status
     """
     STATUS=${fastq.simpleName}",Failed to polish assembly with Medaka"
-    medaka_consensus -i $fastq -d $draft -m r941_min_high_g360 -o . -t $task.cpus -f
+    medaka_consensus -i $fastq -d $draft -m r941_min_sup_g507 -o . -t $task.cpus -f
     echo ">${fastq.simpleName}" >> ${fastq.simpleName}.final.fasta
     sed "2q;d" consensus.fasta >> ${fastq.simpleName}.final.fasta
     STATUS=${fastq.simpleName}",Completed successfully"
@@ -317,7 +318,7 @@ process getVersions {
         path "versions.txt"
     script:
     """
-    medaka --version | sed 's/ /,/' >> versions.txt
+    /home/ubuntu/ont-cas9-enrichment/miniconda/envs/medaka/bin/medaka --version | sed 's/ /,/' >> versions.txt
     minimap2 --version | sed 's/^/minimap2,/' >> versions.txt
     samtools --version | head -n 1 | sed 's/ /,/' >> versions.txt
     seqkit version | sed 's/ /,/' >> versions.txt
@@ -328,6 +329,7 @@ process getVersions {
     fastcat --version | sed 's/^/fastcat,/' >> versions.txt
     last --version | sed 's/ /,/' >> versions.txt
     rasusa --version | sed 's/ /,/' >> versions.txt
+    /home/ubuntu/ont-cas9-enrichment/miniconda/envs/pLannotate/bin/plannotate --version | sed 's/ //' >> versions.txt
     python -c "import spoa; print(spoa.__version__)" | sed 's/^/spoa,/'  >> versions.txt
     """
 }
@@ -348,7 +350,8 @@ process getParams {
 
 
 process runPlannotate {
-    label "wfplasmid"
+    conda '/home/ubuntu/ont-cas9-enrichment/miniconda/envs/pLannotate'
+    label "wfplasmid2"
     cpus params.threads
     input:
         path annotation_database
@@ -393,7 +396,8 @@ process inserts {
 
 
 process report {
-    label "wfplasmid"
+    conda '/home/ubuntu/ont-cas9-enrichment/miniconda/envs/pLannotate'
+    label "wfplasmid2"
     cpus 1
     input:
         path "downsampled_stats/*"

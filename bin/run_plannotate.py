@@ -21,6 +21,7 @@ def run_plannotate(fasta, blast_db, linear=False):
         seq = next(fh).sequence
     df = annotate(seq, blast_db, linear)
     df = BLAST_hit_details.details(df)
+    print(df)
     plot = get_bokeh(df, linear)
     plot.xgrid.grid_line_color = None
     plot.ygrid.grid_line_color = None

@@ -3,11 +3,12 @@ channels:
     - epi2melabs
     - bioconda
     - conda-forge
-    - defaults
+    - anaconda
 dependencies:
-    - python==3.6.*
+    - python
     - aplanat==0.5.7
     - seqkit
+    # - bokeh=2.2.1
     - scikit-learn
     - trycycler
     - porechop
@@ -17,8 +18,8 @@ dependencies:
     - bedtools
     - mappy
     - canu
-    - medaka
-    - plannotate
+    # - medaka==1.6.0
+    # - plannotate==1.0.3
     - fastcat==0.3.6
     - last
     - rasusa
